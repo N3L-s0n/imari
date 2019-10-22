@@ -1,8 +1,9 @@
 package app.eccistudents;
 
 import java.util.Scanner;
+
 import javax.swing.JFileChooser;
-import javax.swing.JButton;
+import javax.swing.filechooser.FileNameExtensionFilter;
 
 public class Interface{
 
@@ -36,13 +37,15 @@ public class Interface{
     public String chooseFile(){
         String path = "";
         
-        JButton open = new JButton();
-        JFileChooser fileChooser = new JFileChooser();
-        fileChooser.setFileSelectionMode(JFileChooser.FILES_ONLY);
-        if(fileChooser.showOpenDialog(open) == JFileChooser.APPROVE_OPTION){
-
+        JFileChooser chooser = new JFileChooser();
+        FileNameExtensionFilter filter = new FileNameExtensionFilter("JPG & GIF Images", "jpg", "gif");
+        chooser.setFileFilter(filter);
+        int returnVal = chooser.showOpenDialog(null);
+        if(returnVal == JFileChooser.APPROVE_OPTION) {
+            System.out.println("You chose to open this file: " +
+            chooser.getSelectedFile().getName());
         }
-        path = fileChooser.getSelectedFile().getAbsolutePath();
+        path = chooser.getSelectedFile().getAbsolutePath();
         return path;
     }
 }
