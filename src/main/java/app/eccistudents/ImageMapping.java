@@ -6,8 +6,8 @@ public class ImageMapping{
     public static final int[] dirY = {-1,-1,0,1,1,1,0,-1};
     
     int[][] matrix;
-    int[][] componentsMatrix;
-    int backgroundColor;
+	int[][] componentsMatrix;
+	int backgroundColor;
     int borderColor;
     int borderIndex;
     int insideColor;
