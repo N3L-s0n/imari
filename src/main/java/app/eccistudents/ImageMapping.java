@@ -2,16 +2,24 @@ package app.eccistudents;
 
 public class ImageMapping{
 
-    public static final int[] dirX = {0,1,1,1,0,-1,-1,-1};
-    public static final int[] dirY = {-1,-1,0,1,1,1,0,-1};
+    public static final int[] dirR = {0,1,1,1,0,-1,-1,-1};
+    public static final int[] dirC = {-1,-1,0,1,1,1,0,-1};
     
     int[][] matrix;
-	int[][] componentsMatrix;
+    int[][] componentsMatrix;
+    int[][] tempMatrix;
+    int[][] tempComponentsMatrix;
+
 	int backgroundColor;
     int borderColor;
     int borderIndex;
+
     int insideColor;
+    int spotsNumber;
     
+    int newPosC;
+    int newPosR;
+
     int rowsLength;
     int columnsLength;
     
@@ -33,6 +41,9 @@ public class ImageMapping{
         backgroundColor = matrix[0][0];
         backgroundTag = -1;
         borderIndex = -1;
+
+        newPosC = 0;
+        newPosR = 0;
     }
     
     public int[][] setAndGetImage(String imageName){
@@ -44,66 +55,171 @@ public class ImageMapping{
     public void mapImage(){
         mapBackground(0,0);
         while(borderIndex < backgroundTag){
-            mapFigure();
+            delimitFigure();
             ++borderIndex;
         }
         Imagen image2 = new Imagen(componentsMatrix);
         image2.dibujar();
     }
     
-    public void mapBackground(int posX, int posY){
-        componentsMatrix[posX][posY] = backgroundTag;
+    public void mapBackground(int posR, int posC){
+        componentsMatrix[posR][posC] = backgroundTag;
         
-        for(int i=0;i<dirX.length;i+=2){
-            int newPosX = posX + dirX[i];
-            int newPosY = posY + dirY[i];
-            if(positionInBounds(newPosX,newPosY)){
-                if(componentsMatrix[newPosX][newPosY] == 0){
-                    if(matrix[newPosX][newPosY] == backgroundColor){
-                        mapBackground(newPosX,newPosY);
+        for(int i=0;i<dirC.length;i+=2){
+            newPosC = posC + dirC[i];
+            newPosR = posR + dirR[i];
+            if(positionInBounds(newPosR,newPosC)){
+                if(componentsMatrix[newPosR][newPosC] == 0){
+                    if(matrix[newPosR][newPosC] == backgroundColor){
+                        mapBackground(newPosR,newPosC);
                     } else {
                         borderIndex--;
-                        borderColor = matrix[newPosX][newPosY];
-                        mapBorder(newPosX,newPosY);
+                        borderColor = matrix[newPosR][newPosC];
+                        mapBorder(newPosR,newPosC);
                     }
                 }
             }   
         }
     }
     
-    public void mapBorder(int posX, int posY){
-        componentsMatrix[posX][posY] = borderIndex;
+    public void mapBorder(int posR, int posC){
+        componentsMatrix[posR][posC] = borderIndex;
         
-        for(int i=0;i<dirX.length;++i){
-            int newPosX = posX + dirX[i];
-            int newPosY = posY + dirY[i];
-            if(positionInBounds(newPosX,newPosY)){
-                if(matrix[newPosX][newPosY] == borderColor && componentsMatrix[newPosX][newPosY] == 0){
-                    mapBorder(newPosX,newPosY);
+        for(int i=0;i<dirC.length;++i){
+            newPosC = posC + dirC[i];
+            newPosR = posR + dirR[i];
+            if(positionInBounds(newPosR,newPosC)){
+                if(matrix[newPosR][newPosC] == borderColor && componentsMatrix[newPosR][newPosC] == 0){
+                    mapBorder(newPosR,newPosC);
                 } 
             }
         }
     }
     
-    public void mapFigure(){
-        System.out.println(""+borderIndex);
-        int[] topMatch = new int[2];
+    public void delimitFigure(){
+
+        spotsNumber = 0;
+
+        int[] topMatch = new int[2];    // No tienen que ser vectores
         int[] bottomMatch = new int[2];
         int[] rightMatch = new int[2];
         int[] leftMatch = new int[2];
+
+        int height;
+        int width;
+
         topMatch = searchVertical(true);
         bottomMatch = searchVertical(false);
-        rightMatch = searchHorizontal(true);
-        leftMatch = searchHorizontal(false);
-        System.out.println("\n"+ borderIndex + "\n" + topMatch[0] + " " + topMatch[1]);
-        System.out.println("\n"+ borderIndex + "\n" + bottomMatch[0] + " " + bottomMatch[1]);
-        System.out.println("\n"+ borderIndex + "\n" + rightMatch[0] + " " + rightMatch[1]);
-        System.out.println("\n"+ borderIndex + "\n" + leftMatch[0] + " " + leftMatch[1]);
-        for(int i=0;i<dirX.length;i++){
-            componentsMatrix[topMatch[0] + dirX[i]][topMatch[1] + dirY[i]] = 2341634;
-            componentsMatrix[bottomMatch[0] + dirX[i]][bottomMatch[1] + dirY[i]] = 2341634;
-            componentsMatrix[rightMatch[0] + dirX[i]][rightMatch[1] + dirY[i]] = 2341634;
-            componentsMatrix[leftMatch[0] + dirX[i]][leftMatch[1] + dirY[i]] = 2341634;
+        leftMatch = searchHorizontal(true);
+        rightMatch = searchHorizontal(false);
+
+        height = bottomMatch[0] - topMatch[0] + 2;
+        width = rightMatch[1] - leftMatch[1] + 2;
+
+        tempMatrix = new int[height][width];
+        tempComponentsMatrix = new int[height][width];
+
+        int rows = 0;
+        int columns;
+        for(int r = (topMatch[0] - 1); r <= bottomMatch[0]; ++r){
+            columns = 0;
+            for(int c = (leftMatch[1] - 1); c <= rightMatch[1]; ++c){
+                tempMatrix[rows][columns] = matrix[r][c];
+                ++columns;
+            } 
+            ++rows;
+        }   
+        rows = 0;
+        for(int r = (topMatch[0] - 1); r <= bottomMatch[0]; ++r){
+            columns = 0;
+            for(int c = (leftMatch[1] - 1); c <= rightMatch[1]; ++c){
+                tempComponentsMatrix[rows][columns] = componentsMatrix[r][c];
+                ++columns;
+            } 
+            ++rows;
+        }   
+        
+        cleanFigure();
+        constructImages();
+        findInside();
+        System.out.println(spotsNumber);
+    }
+
+    public void constructImages(){
+        Imagen imageColors = new Imagen(tempMatrix);
+        imageColors.dibujar();
+        Imagen imageFigure = new Imagen(tempComponentsMatrix);
+        imageFigure.dibujar();    
+    }
+
+    public void cleanFigure(){
+        for(int r = 0; r < tempMatrix.length; ++r){
+            for(int c = 0; c < tempMatrix[r].length; ++c){
+                if(tempComponentsMatrix[r][c] != backgroundTag && tempComponentsMatrix[r][c] != borderIndex && tempComponentsMatrix[r][c] != 0){
+                    cleanBorder(r,c);
+                }
+            }
+        }
+    }
+
+    public void cleanBorder(int posR, int posC){
+        tempComponentsMatrix[posR][posC] = backgroundTag;
+        tempMatrix[posR][posC] = backgroundColor;
+
+        for(int i=0;i<dirC.length;++i){
+            newPosC = posC + dirC[i];
+            newPosR = posR + dirR[i];
+            if(positionInBoundsFigure(newPosR,newPosC)){
+                if(tempComponentsMatrix[newPosR][newPosC] != backgroundTag){
+                    cleanBorder(newPosR,newPosC);
+                } 
+            }
+        }
+    }
+
+    public void findInside(){
+        boolean found = false;
+        for(int r = 0; r < tempMatrix.length && !found; ++r){
+            for(int c = 0; c < tempMatrix[r].length && !found; ++c){
+                if(tempComponentsMatrix[r][c] == 0){
+                    insideColor = tempMatrix[r][c];
+                    searchSpots(r,c);
+                    found = true;
+                }
+            }
+        }
+    }
+
+    public void searchSpots(int posR, int posC){
+        tempComponentsMatrix[posR][posC]= 1;
+
+        for(int i=0;i<dirC.length;i+=2){
+            newPosC = posC + dirC[i];
+            newPosR = posR + dirR[i];
+            if(positionInBoundsFigure(newPosR,newPosC) && tempComponentsMatrix[newPosR][newPosC] == 0){
+                if(tempMatrix[newPosR][newPosC] != insideColor){
+                    ++spotsNumber;
+                    mapSpots(newPosR, newPosC);
+                } else {
+                    if(tempMatrix[newPosR][newPosC] == insideColor){
+                        searchSpots(newPosR, newPosC);
+                    }
+                }
+            }   
+        }
+    }
+    
+    public void mapSpots(int posR, int posC){
+        tempComponentsMatrix[posR][posC] = 1;
+        
+        for(int i=0;i<dirC.length;++i){
+            newPosC = posC + dirC[i];
+            newPosR = posR + dirR[i];
+            if(positionInBoundsFigure(newPosR,newPosC)){
+                if(tempMatrix[newPosR][newPosC] != insideColor && tempComponentsMatrix[newPosR][newPosC] == 0){
+                    mapSpots(newPosR,newPosC);
+                } 
+            }
         }
     }
     
@@ -137,14 +253,14 @@ public class ImageMapping{
         return address;
     }
     
-    public int[] searchHorizontal(boolean right){
+    public int[] searchHorizontal(boolean left){
         boolean found;
         int[] address = new int[2];
         int startingRow = 1;
         int startingColumn = 1;
         int endColumn = 1;
         int addNumber = 1;
-        if(right){
+        if(left){
             endColumn = columnsLength;
             address[0] = componentsMatrix.length-1;
             address[1] = componentsMatrix[0].length-1;
@@ -154,10 +270,10 @@ public class ImageMapping{
         }
         for(int r = startingRow; r < rowsLength; ++r){
             found = false;
-            for(int c = startingColumn;right?(c<endColumn):(c>endColumn) && !found;c+=addNumber){
+            for(int c = startingColumn;left?(c<endColumn):(c>endColumn) && !found;c+=addNumber){
                 if(componentsMatrix[r][c] == borderIndex){
                     found = !found;
-                    if(right?(c < address[1]):(c > address[1])){
+                    if(left?(c < address[1]):(c > address[1])){
                         address[0] = r;
                         address[1] = c;
                     }
@@ -169,8 +285,14 @@ public class ImageMapping{
     
     
     
-    public boolean positionInBounds(int p1, int p2){
-        return (p2 < matrix.length) && (p1 < matrix[0].length) && (p2 >= 0) && (p1 >= 0);
+    public boolean positionInBounds(int r, int c){
+        return (r < matrix.length) && (c < matrix[0].length) && (r >= 0) && (c >= 0);
     }
+    
+    public boolean positionInBoundsFigure(int r, int c){
+        return (r < tempMatrix.length) && (c < tempMatrix[0].length) && (r >= 0) && (c >= 0);
+    }
+
+
 
 }
