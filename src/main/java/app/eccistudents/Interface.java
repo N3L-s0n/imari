@@ -45,7 +45,9 @@ public class Interface{
             System.out.println("You chose to open this file: " +
             chooser.getSelectedFile().getName());
         }
-        path = chooser.getSelectedFile().getAbsolutePath();
+        if(chooser.getSelectedFile() != null){
+            path = chooser.getSelectedFile().getAbsolutePath();
+        }
         return path;
     }
 }

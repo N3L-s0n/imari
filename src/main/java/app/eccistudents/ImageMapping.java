@@ -31,22 +31,12 @@ public class ImageMapping{
 
     int rowsLength;
     int columnsLength;
-        
+    
     Imagen image;
 
-    public ImageMapping(String imageName){
-        this.matrix = setAndGetImage(imageName);
-        rowsLength = matrix.length;
-        columnsLength = matrix[0].length;
-        
-        componentsMatrix = new int[rowsLength][columnsLength];
-
-        backgroundColor = matrix[0][0];
+    public ImageMapping(){
         backgroundTag = -1;
         borderTag = -1;
-
-        newPosC = 0;
-        newPosR = 0;
     }
     
     public int[][] setAndGetImage(String imageName){
@@ -54,13 +44,28 @@ public class ImageMapping{
         image.dibujar();
         return image.getMatriz();
     }
+    
+    public void init_variables(){
+        rowsLength = matrix.length;
+        columnsLength = matrix[0].length;
+        
+        componentsMatrix = new int[rowsLength][columnsLength];
+    
+        backgroundColor = matrix[0][0];
+        
+        newPosC = 0;
+        newPosR = 0;
+    }
 
-    public void mapImage(){
+    public void mapImage(String imageName){
+        matrix = setAndGetImage(imageName);
+        init_variables();
+
         mapBackground(0,0);
         
         int figures = -1 * (borderTag + 1);
         
-        catalog = new Catalog(figures);
+        catalog = new Catalog(figures, image);
         while(borderTag < backgroundTag){
             delimitFigure();
             ++borderTag;
@@ -273,9 +278,29 @@ public class ImageMapping{
         return address;
     }
     
+    public int calcPixelsArea(){
+        int pixelsArea = 0;
+        int rowLength = tempMatrix.length;
+        int columnLength = tempMatrix[0].length;
+
+        for(int r = 0; r < rowLength; ++r){
+            for(int c = 0; c < columnLength; ++c){
+                if(tempComponentsMatrix[r][c] != backgroundTag){
+                    ++pixelsArea;
+                }
+            }
+        }
+
+        return pixelsArea;
+    }
+
     public void constructFigure(){
         Imagen imageColors = new Imagen(tempMatrix);
-        Imagen imageFigure = new Imagen(tempComponentsMatrix);
+        Figure processedFigure = new Figure(imageColors);
+
+        processedFigure.setArea(calcPixelsArea());
+        processedFigure.setStainNumber(spotsNumber);        
+        catalog.addFigure(processedFigure);
     }
 
     public boolean cleanBorder(){

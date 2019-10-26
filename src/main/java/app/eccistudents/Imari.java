@@ -3,10 +3,13 @@ package app.eccistudents;
 public class Imari{
 
     public final String menu = "\n1-Agregar imagen\n2-Mostrar inventario\n3-Mostrar imagenes por rango\n4-Salir\n";
+    
     private Interface interface1;
+    private ImageMapping imageMap;
 
     public Imari(){
         interface1 = new Interface();
+        imageMap = new ImageMapping();
     }
 
     public void run(){
@@ -24,14 +27,16 @@ public class Imari{
             case 1:
                 String imagePath;
                 imagePath = interface1.chooseFile();
-                System.out.println(imagePath);
-                ImageMapping imageMap = new ImageMapping(imagePath);
-                imageMap.mapImage();
+                if(imagePath != ""){
+                    imageMap.mapImage(imagePath);
+                }
                 break;
             case 2:
                 break;
             case 3:
                 break;    
+            default:
+                break;
         }
     }
 
