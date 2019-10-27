@@ -37,6 +37,10 @@ public final class Imagen extends JFrame {
 			}
 		} 
 	}
+
+	public BufferedImage getBufferedImage(){
+		return buffer;
+	}
 	
 	public Imagen(String nombreImagen) {
 		Image imagen = (new ImageIcon(nombreImagen)).getImage();

@@ -10,6 +10,7 @@ public class ImageMapping{
     public static final boolean VERTICAL_DIRECTION = true;
     
     private Catalog catalog;
+    private Saver fileSaver;
 
     int[][] matrix;
     int[][] componentsMatrix;
@@ -34,13 +35,19 @@ public class ImageMapping{
     
     Imagen image;
 
-    public ImageMapping(){
+    public ImageMapping(Saver fileSaver){
+        this.fileSaver = fileSaver;
         backgroundTag = -1;
         borderTag = -1;
     }
     
     public int[][] setAndGetImage(String imageName){
         image = new Imagen(imageName);
+        try{
+            fileSaver.saveImage(image.getBufferedImage());
+        } catch(Exception e){
+            System.out.println("Something went wrong");
+        }
         image.dibujar();
         return image.getMatriz();
     }
@@ -296,6 +303,11 @@ public class ImageMapping{
 
     public void constructFigure(){
         Imagen imageColors = new Imagen(tempMatrix);
+        try {
+            fileSaver.saveImage(imageColors.getBufferedImage());
+        } catch (Exception e) {
+            //TODO: handle exception
+        }
         Figure processedFigure = new Figure(imageColors);
 
         processedFigure.setArea(calcPixelsArea());

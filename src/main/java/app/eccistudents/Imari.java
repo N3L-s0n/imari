@@ -6,10 +6,12 @@ public class Imari{
     
     private Interface interface1;
     private ImageMapping imageMap;
+    private Saver fileSaver;
 
     public Imari(){
         interface1 = new Interface();
-        imageMap = new ImageMapping();
+        fileSaver = new Saver();
+        imageMap = new ImageMapping(fileSaver);
     }
 
     public void run(){
