@@ -1,12 +1,8 @@
 package app.eccistudents;
  
 public class Figure{
-    private Imagen i;
+
     private int[][] matrix;
-
-    private int height;
-    private int width;
-
     private int stains;
     private int area;
     private int maxZoom;
